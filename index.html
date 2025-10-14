@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalVCard - 国际虚拟信用卡生成平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0E2E91',
+                        accent: '#36BFFA',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+                        'card-hover': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                        'card-glow': '0 0 15px rgba(22, 93, 255, 0.2)',
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-gradient {
+                background: linear-gradient(135deg, var(--tw-gradient-stops));
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .card-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+            .scrollbar-thin {
+                scrollbar-width: thin;
+            }
+            .scrollbar-thin::-webkit-scrollbar {
+                width: 4px;
+                height: 4px;
+            }
+            .scrollbar-thin::-webkit-scrollbar-thumb {
+                background-color: rgba(156, 163, 175, 0.5);
+                border-radius: 2px;
+            }
+            .card-shine {
+                position: relative;
+                overflow: hidden;
+            }
+            .card-shine::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    to right,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0) 100%
+                );
+                transform: rotate(30deg);
+                animation: shine 3s infinite;
+            }
+            @keyframes shine {
+                0% {
+                    transform: rotate(30deg) translate(-100%, -100%);
+                }
+                100% {
+                    transform: rotate(30deg) translate(100%, 100%);
+                }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-credit-card text-primary text-2xl"></i>
+                    <span class="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">GlobalVCard</span>
+                </div>
+                
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-primary font-medium hover:text-secondary transition-colors">首页</a>
+                    <a href="#features" class="text-gray-600 hover:text-primary transition-colors">功能</a>
+                    <a href="#generator" class="text-gray-600 hover:text-primary transition-colors">生成器</a>
+                </nav>
+                
+                <div class="flex items-center">
+                    <button class="md:hidden text-gray-600 hover:text-primary">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow pt-24 pb-16">
+        <!-- 英雄区域 -->
+        <section class="container mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-dark mb-4">
+                        符合标准的<span class="text-primary">Visa虚拟信用卡</span>
+                    </h1>
+                    <p class="text-gray-600 text-lg mb-8 max-w-lg">
+                      生成随机测试信用卡号，用于测试、开发、验证和/或验证目的。
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#generator" class="px-8 py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-secondary transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            立即生成
+                        </a>
+                        <a href="#features" class="px-8 py-3 bg-white text-primary border border-primary rounded-lg font-medium text-center hover:bg-gray-50 transition-all">
+                            了解标准
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 relative">
+                    <div class="relative w-full max-w-md mx-auto transform rotate-3 hover:rotate-0 transition-all duration-500">
+                        <!-- 示例信用卡 -->
+                        <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl shadow-card card-shine p-6 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full -ml-20 -mb-20"></div>
+                            
+                            <div class="flex justify-between items-start mb-6 relative z-10">
+                                <div>
+                                    <h3 class="font-bold text-lg">GlobalVCard</h3>
+                                    <p class="text-sm text-white/80">Visa</p>
+                                </div>
+                                <i class="fa fa-cc-visa text-3xl"></i>
+                            </div>
+                            
+                            <div class="mb-6 relative z-10">
+                                <div class="flex justify-between text-sm mb-2 text-white/80">卡号</div>
+                                <div class="flex space-x-2 text-xl font-mono">
+                                    <span>4111</span>
+                                    <span>1111</span>
+                                    <span>1111</span>
+                                    <span>1118</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 relative z-10">
+                                <div>
+                                    <div class="text-xs text-white/80 mb-1">持卡人</div>
+                                    <div class="font-medium">张 三</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-white/80 mb-1">有效期</div>
+                                    <div class="font-medium">10/28</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 relative z-10">
+                                <div class="text-xs text-white/80 mb-1">CVV</div>
+                                <div class="font-medium">123</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 装饰元素 -->
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-accent/20 rounded-full"></div>
+                        <div class="absolute -top-4 -left-4 w-16 h-16 bg-primary/10 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 功能特点 -->
+        <section id="features" class="bg-neutral py-16 mb-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">                
+                <!-- 卡号结构说明 -->
+                <div class="mt-16 bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold mb-6 text-center">Visa卡号结构详解</h3>
+                    <div class="relative">
+                        <div class="flex flex-wrap justify-center gap-1 mb-8 text-lg font-mono">
+                            <span class="px-3 py-2 bg-primary text-white rounded">4</span>
+                            <span class="px-3 py-2 bg-secondary/90 text-white rounded">X</span>
+                            <span class="px-3 py-2 bg-secondary/80 text-white rounded">X</span>
+                            <span class="px-3 py-2 bg-secondary/70 text-white rounded">X</span>
+                            <span class="px-3 py-2 bg-secondary/60 text-white rounded">X</span>
+                            <span class="px-3 py-2 bg-secondary/50 text-white rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-gray-200 text-gray-700 rounded">X</span>
+                            <span class="px-3 py-2 bg-success text-white rounded">X</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="font-bold text-primary mb-1">第1位</div>
+                                <div>卡品牌标识位（MII），固定为4，标识为Visa卡</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="font-bold text-secondary mb-1">第2-6位</div>
+                                <div>发卡机构识别码（BIN），标识卡片归属的金融机构</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="font-bold text-gray-600 mb-1">第7-15位</div>
+                                <div>个人账户标识位，区分同一机构下的不同用户账户</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="font-bold text-success mb-1">第16位</div>
+                                <div>校验位，通过Luhn算法计算得出，用于验证卡号有效性</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 生成器部分 -->
+        <section id="generator" class="container mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold mb-4">虚拟信用卡生成器</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">生成符合Visa标准的虚拟信用卡信息，严格遵循官方编码规则，最多可生成100张</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 左侧：设置面板 -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <i class="fa fa-sliders text-primary mr-2"></i> 生成设置
+                    </h3>
+                    
+                    <form id="cardGeneratorForm" class="space-y-6">
+                        <!-- 地区选择 -->
+                        <div>
+                            <label for="country" class="block text-sm font-medium text-gray-700 mb-1">选择地区（影响BIN段）</label>
+                            <div class="relative">
+                                <select id="country" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg appearance-none bg-gray-50">
+                                    <option value="US">美国 (United States)</option>
+                                    <option value="CN" selected>中国 (China)</option>
+                                    <option value="GB">英国 (United Kingdom)</option>
+                                    <option value="JP">日本 (Japan)</option>
+                                    <option value="DE">德国 (Germany)</option>
+                                    <option value="FR">法国 (France)</option>
+                                    <option value="CA">加拿大 (Canada)</option>
+                                    <option value="AU">澳大利亚 (Australia)</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                    <i class="fa fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 持卡人姓名 -->
+                        <div>
+                            <label for="cardholder" class="block text-sm font-medium text-gray-700 mb-1">持卡人姓名</label>
+                            <input type="text" id="cardholder" value="Fake" 
+                                class="block w-full px-3 py-3 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg bg-gray-50"
+                                placeholder="请输入持卡人姓名">
+                        </div>
+                        
+                        <!-- 到期月份 -->
+                        <div>
+                            <label for="expiryMonth" class="block text-sm font-medium text-gray-700 mb-1">到期月份</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <select id="expiryMonth" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg appearance-none bg-gray-50">
+                                        <option value="random">随机</option>
+                                        <option value="01">01 (一月)</option>
+                                        <option value="02">02 (二月)</option>
+                                        <option value="03">03 (三月)</option>
+                                        <option value="04">04 (四月)</option>
+                                        <option value="05">05 (五月)</option>
+                                        <option value="06">06 (六月)</option>
+                                        <option value="07">07 (七月)</option>
+                                        <option value="08">08 (八月)</option>
+                                        <option value="09">09 (九月)</option>
+                                        <option value="10">10 (十月)</option>
+                                        <option value="11">11 (十一月)</option>
+                                        <option value="12">12 (十二月)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select id="expiryYear" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg appearance-none bg-gray-50">
+                                        <option value="random">随机</option>
+                                        <option value="25">2025</option>
+                                        <option value="26">2026</option>
+                                        <option value="27">2027</option>
+                                        <option value="28" selected>2028</option>
+                                        <option value="29">2029</option>
+                                        <option value="30">2030</option>
+                                        <option value="31">2031</option>
+                                        <option value="32">2032</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 生成数量 -->
+                        <div>
+                            <label for="cardCount" class="block text-sm font-medium text-gray-700 mb-1">生成数量 (1-100)</label>
+                            <input type="number" id="cardCount" min="1" max="100" value="1"
+                                class="block w-full px-3 py-3 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg bg-gray-50">
+                            <div class="mt-1 text-xs text-gray-500">最多可一次生成100张虚拟信用卡</div>
+                        </div>
+                        
+                        <!-- CVV设置 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">CVV设置</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="radio" id="randomCVV" name="cvvOption" value="random" checked
+                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                                <label for="randomCVV" class="text-sm text-gray-700">随机生成</label>
+                            </div>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <input type="radio" id="customCVV" name="cvvOption" value="custom"
+                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                                <input type="text" id="cvvValue" placeholder="自定义CVV" disabled
+                                    class="block w-full px-3 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary focus:border-primary rounded-lg bg-gray-50 opacity-50">
+                            </div>
+                        </div>
+                        
+                        <!-- 生成按钮 -->
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center">
+                            <i class="fa fa-refresh mr-2"></i> 生成虚拟卡
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- 右侧：结果展示 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                            <h3 class="text-xl font-bold flex items-center">
+                                <i class="fa fa-credit-card text-primary mr-2"></i> 生成结果
+                            </h3>
+                            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                                <button id="exportCSV" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fa fa-file-text-o mr-1"></i> CSV
+                                </button>
+                                <button id="exportTXT" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fa fa-file-code-o mr-1"></i> TXT
+                                </button>
+                                <button id="exportPDF" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fa fa-file-pdf-o mr-1"></i> PDF
+                                </button>
+                                <button id="copyAll" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fa fa-copy mr-1"></i> 复制全部
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 生成状态提示 -->
+                        <div id="generationStatus" class="hidden mb-6 p-4 rounded-lg bg-success/10 text-success border border-success/20 flex items-center">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            <span><span id="generatedCount">1</span> 张虚拟信用卡已成功生成</span>
+                        </div>
+                        
+                        <!-- 卡片展示区域 -->
+                        <div id="cardsContainer" class="flex-grow flex flex-col items-center justify-center overflow-auto scrollbar-thin pb-4">
+                            <div class="text-center py-12 text-gray-500">
+                                <i class="fa fa-credit-card text-5xl mb-4 opacity-30"></i>
+                                <p>请设置参数并点击"生成虚拟卡"按钮</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 卡片列表 -->
+                        <div id="cardsList" class="mt-6 hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="font-medium text-gray-700">卡片详情</h4>
+                                <button id="toggleList" class="text-primary text-sm hover:underline flex items-center">
+                                    <i class="fa fa-chevron-up mr-1"></i>
+                                    <span>收起列表</span>
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto bg-gray-50 rounded-xl p-4 scrollbar-thin">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">序号</th>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">持卡人</th>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">卡号</th>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">有效期</th>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">CVV</th>
+                                            <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cardsTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- 卡片数据将通过JS动态添加 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-credit-card text-primary text-2xl"></i>
+                        <span class="text-xl font-bold">GlobalVCard</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                         符合标准的<span class="text-primary">Visa虚拟信用卡</span>
+                    </p>
+                  <span>生成随机测试信用卡号，用于测试、开发、验证和/或验证目的。</span>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition-colors">首页</a></li>
+                        <li><a href="#features" class="hover:text-primary transition-colors">功能</a></li>
+                        <li><a href="#generator" class="hover:text-primary transition-colors">生成器</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">资源</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition-colors">使用指南</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Visa编码标准</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">服务条款</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">联系我们</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2"></i> 320531386@qq.com</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2"></i> 1008611</li>
+                    </ul>
+                    <div class="mt-4 flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i class="fa fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2025 GlobalVCard. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 复制成功提示 -->
+    <div id="copyNotification" class="fixed bottom-6 right-6 bg-success text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i class="fa fa-check mr-2"></i>
+        <span>复制成功！</span>
+    </div>
+
+    <!-- 生成大量卡片时的加载提示 -->
+    <div id="loadingIndicator" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-xl flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-700 font-medium">正在生成虚拟信用卡，请稍候...</p>
+            <p class="text-gray-500 text-sm mt-2" id="loadingProgress">生成中: 0/100</p>
+        </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-4');
+                navbar.classList.add('bg-white/95');
+                navbar.classList.add('backdrop-blur-sm');
+            } else {
+                navbar.classList.add('py-4');
+                navbar.classList.remove('py-2');
+                navbar.classList.remove('bg-white/95');
+                navbar.classList.remove('backdrop-blur-sm');
+            }
+        });
+        
+        // CVV选项切换
+        const randomCVV = document.getElementById('randomCVV');
+        const customCVV = document.getElementById('customCVV');
+        const cvvValue = document.getElementById('cvvValue');
+        
+        randomCVV.addEventListener('change', function() {
+            if (this.checked) {
+                cvvValue.disabled = true;
+                cvvValue.classList.add('opacity-50');
+            }
+        });
+        
+        customCVV.addEventListener('change', function() {
+            if (this.checked) {
+                cvvValue.disabled = false;
+                cvvValue.classList.remove('opacity-50');
+                cvvValue.focus();
+            }
+        });
+        
+        // 限制CVV输入为3位数字
+        cvvValue.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);
+        });
+        
+        // 生成随机到期日
+        function getRandomExpiry() {
+            const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+            const years = ['25', '26', '27', '28', '29', '30', '31', '32'];
+            
+            const month = months[Math.floor(Math.random() * months.length)];
+            const year = years[Math.floor(Math.random() * years.length)];
+            
+            return { month, year };
+        }
+        
+        // Visa卡生成逻辑 - 严格遵循官方规则
+        class VisaCardGenerator {
+            // 不同地区对应的BIN段（发卡机构识别码）
+            regionBINs = {
+                'US': ['411111', '411112', '411113', '411114'], // 美国地区BIN段
+                'CN': ['439225', '439226', '481666', '481667'], // 中国地区BIN段
+                'GB': ['492903', '492904', '492905', '492906'], // 英国地区BIN段
+                'JP': ['457104', '457105', '457106', '457107'], // 日本地区BIN段
+                'DE': ['471901', '471902', '471903', '471904'], // 德国地区BIN段
+                'FR': ['497001', '497002', '497003', '497004'], // 法国地区BIN段
+                'CA': ['453201', '453202', '453203', '453204'], // 加拿大地区BIN段
+                'AU': ['462201', '462202', '462203', '462204']  // 澳大利亚地区BIN段
+            };
+            
+            // 根据地区获取随机BIN段
+            getRandomBIN(region) {
+                const bins = this.regionBINs[region] || this.regionBINs['US'];
+                return bins[Math.floor(Math.random() * bins.length)];
+            }
+            
+            // 生成符合Visa标准的卡号
+            generateCardNumber(region) {
+                // 1. 获取BIN段（第1-6位）
+                const bin = this.getRandomBIN(region);
+                
+                // 2. 生成个人账户标识位（第7-15位，共9位）
+                // 避免生成连续重复数字或顺序数字
+                let accountNumber = '';
+                while (accountNumber.length < 9) {
+                    const digit = Math.floor(Math.random() * 10).toString();
+                    
+                    // 避免连续3个相同数字
+                    if (accountNumber.length >= 2 && 
+                        accountNumber[accountNumber.length - 1] === digit && 
+                        accountNumber[accountNumber.length - 2] === digit) {
+                        continue;
+                    }
+                    
+                    // 避免最后三位形成顺序数字（升序或降序）
+                    if (accountNumber.length >= 2) {
+                        const last1 = parseInt(accountNumber[accountNumber.length - 1]);
+                        const last2 = parseInt(accountNumber[accountNumber.length - 2]);
+                        
+                        // 检查升序 (如 3,4,5)
+                        if (last1 === last2 + 1 && parseInt(digit) === last1 + 1) {
+                            continue;
+                        }
+                        
+                        // 检查降序 (如 5,4,3)
+                        if (last1 === last2 - 1 && parseInt(digit) === last1 - 1) {
+                            continue;
+                        }
+                    }
+                    
+                    accountNumber += digit;
+                }
+                
+                // 前15位组合：BIN(6位) + 个人账户标识(9位)
+                const first15Digits = bin + accountNumber;
+                
+                // 3. 计算Luhn校验位（第16位）
+                const checkDigit = this.calculateLuhnCheckDigit(first15Digits);
+                
+                // 返回完整的16位卡号
+                return first15Digits + checkDigit;
+            }
+            
+            // 生成随机数字字符串（用于CVV）
+            generateRandomNumbers(length) {
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += Math.floor(Math.random() * 10).toString();
+                }
+                return result;
+            }
+            
+            // 计算Luhn算法校验位（严格按照标准实现）
+            calculateLuhnCheckDigit(number) {
+                // 确保输入是15位数字
+                if (number.length !== 15) {
+                    throw new Error("Luhn算法需要15位数字来计算第16位校验位");
+                }
+                
+                let sum = 0;
+                let alternate = false;
+                
+                // 从右向左处理数字
+                for (let i = number.length - 1; i >= 0; i--) {
+                    let n = parseInt(number.charAt(i));
+                    
+                    // 偶数位（从右数）加倍处理
+                    if (alternate) {
+                        n *= 2;
+                        // 若乘积≥10，则将乘积的十位和个位相加
+                        if (n > 9) {
+                            n = (n % 10) + 1;
+                        }
+                    }
+                    
+                    sum += n;
+                    alternate = !alternate;
+                }
+                
+                // 校验位是使总和成为10的倍数的数字
+                const checkDigit = (10 - (sum % 10)) % 10;
+                return checkDigit.toString();
+            }
+            
+            // 生成CVV
+            generateCVV() {
+                return this.generateRandomNumbers(3);
+            }
+            
+            // 格式化卡号（每4位一组）
+            formatCardNumber(number) {
+                return number.match(/.{1,4}/g).join(' ');
+            }
+        }
+        
+        // 生成卡片并展示
+        const cardGeneratorForm = document.getElementById('cardGeneratorForm');
+        const cardsContainer = document.getElementById('cardsContainer');
+        const cardsList = document.getElementById('cardsList');
+        const cardsTableBody = document.getElementById('cardsTableBody');
+        const exportButtons = [
+            document.getElementById('exportCSV'),
+            document.getElementById('exportTXT'),
+            document.getElementById('exportPDF'),
+            document.getElementById('copyAll')
+        ];
+        const generationStatus = document.getElementById('generationStatus');
+        const generatedCount = document.getElementById('generatedCount');
+        const toggleListBtn = document.getElementById('toggleList');
+        const copyNotification = document.getElementById('copyNotification');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingProgress = document.getElementById('loadingProgress');
+        
+        let generatedCards = [];
+        const generator = new VisaCardGenerator();
+        let listExpanded = true;
+        
+        cardGeneratorForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const country = document.getElementById('country').value;
+            const cardholder = document.getElementById('cardholder').value || 'Card Holder';
+            const expiryMonthSelect = document.getElementById('expiryMonth');
+            const expiryYearSelect = document.getElementById('expiryYear');
+            const cardCount = parseInt(document.getElementById('cardCount').value);
+            const cvvOption = document.querySelector('input[name="cvvOption"]:checked').value;
+            const customCVVValue = cvvOption === 'custom' ? cvvValue.value : null;
+            
+            // 验证自定义CVV
+            if (cvvOption === 'custom' && (!customCVVValue || customCVVValue.length !== 3)) {
+                alert('请输入有效的3位数字CVV');
+                cvvValue.focus();
+                return;
+            }
+            
+            // 对于大量卡片生成，显示加载指示器
+            if (cardCount > 5) {
+                loadingIndicator.classList.remove('hidden');
+            }
+            
+            // 生成卡片 - 对于大量卡片使用异步处理，避免UI冻结
+            generatedCards = [];
+            for (let i = 0; i < cardCount; i++) {
+                // 更新进度
+                if (cardCount > 5) {
+                    loadingProgress.textContent = `生成中: ${i+1}/${cardCount}`;
+                    // 对于非常大量的生成，给浏览器一点时间处理UI更新
+                    if (i % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                }
+                
+                // 处理到期日随机选择
+                let expiryMonth, expiryYear;
+                if (expiryMonthSelect.value === 'random' || expiryYearSelect.value === 'random') {
+                    const randomExpiry = getRandomExpiry();
+                    expiryMonth = expiryMonthSelect.value === 'random' ? randomExpiry.month : expiryMonthSelect.value;
+                    expiryYear = expiryYearSelect.value === 'random' ? randomExpiry.year : expiryYearSelect.value;
+                } else {
+                    expiryMonth = expiryMonthSelect.value;
+                    expiryYear = expiryYearSelect.value;
+                }
+                
+                // 生成符合Visa标准的卡号，传入地区参数以获取对应BIN段
+                const cardNumber = generator.generateCardNumber(country);
+                const cvv = cvvOption === 'custom' ? customCVVValue : generator.generateCVV();
+                
+                generatedCards.push({
+                    id: Date.now() + i, // 唯一ID用于操作
+                    cardholder: cardholder,
+                    number: cardNumber,
+                    formattedNumber: generator.formatCardNumber(cardNumber),
+                    expiry: `${expiryMonth}/${expiryYear}`,
+                    cvv: cvv,
+                    country: country
+                });
+            }
+            
+            // 隐藏加载指示器
+            loadingIndicator.classList.add('hidden');
+            
+            // 显示卡片
+            displayCards();
+            
+            // 显示生成状态
+            generatedCount.textContent = cardCount;
+            generationStatus.classList.remove('hidden');
+            
+            // 启用导出按钮
+            exportButtons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+            
+            // 自动滚动到结果区域
+            cardsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        
+        // 显示生成的卡片
+        function displayCards() {
+            // 清空容器
+            cardsContainer.innerHTML = '';
+            cardsTableBody.innerHTML = '';
+            
+            // 为多卡片创建响应式网格容器
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'w-full card-grid';
+            cardsContainer.appendChild(gridContainer);
+            
+            // 显示卡片
+            generatedCards.forEach((card, index) => {
+                // 创建卡片UI - 移除翻转效果，直接显示CVV
+                const cardElement = document.createElement('div');
+                cardElement.className = 'w-full max-w-md mx-auto';
+                
+                // 卡片颜色变化，增加视觉多样性
+                const gradientClasses = [
+                    'from-primary to-secondary',
+                    'from-blue-600 to-indigo-700',
+                    'from-purple-600 to-pink-600',
+                    'from-teal-500 to-cyan-600',
+                    'from-amber-500 to-orange-600'
+                ];
+                const randomGradient = gradientClasses[Math.floor(Math.random() * gradientClasses.length)];
+                
+                // 卡片内容（无翻转效果，直接显示CVV）
+                cardElement.innerHTML = `
+                    <div class="bg-gradient-to-r ${randomGradient} rounded-2xl shadow-card card-shine p-6 text-white relative overflow-hidden transform transition-all duration-300 hover:shadow-card-hover hover:shadow-card-glow hover:scale-[1.02]">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                        <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full -ml-20 -mb-20"></div>
+                        
+                        <div class="flex justify-between items-start mb-6 relative z-10">
+                            <div>
+                                <h3 class="font-bold text-lg">GlobalVCard</h3>
+                                <p class="text-sm text-white/80">Visa</p>
+                            </div>
+                            <i class="fa fa-cc-visa text-3xl"></i>
+                        </div>
+                        
+                        <div class="mb-6 relative z-10">
+                            <div class="flex justify-between text-sm mb-2 text-white/80">卡号</div>
+                            <div class="flex space-x-2 text-xl font-mono">
+                                ${card.formattedNumber.split(' ').map(part => `<span>${part}</span>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 relative z-10 mb-4">
+                            <div>
+                                <div class="text-xs text-white/80 mb-1">持卡人</div>
+                                <div class="font-medium">${card.cardholder}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-white/80 mb-1">有效期</div>
+                                <div class="font-medium">${card.expiry}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="relative z-10">
+                            <div class="text-xs text-white/80 mb-1">CVV</div>
+                            <div class="font-medium">${card.cvv}</div>
+                        </div>
+                    </div>
+                `;
+                
+                gridContainer.appendChild(cardElement);
+                
+                // 添加到表格
+                const tableRow = document.createElement('tr');
+                tableRow.className = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+                tableRow.innerHTML = `
+                    <td class="px-3 py-4 whitespace-nowrap">${index + 1}</td>
+                    <td class="px-3 py-4 whitespace-nowrap">${card.cardholder}</td>
+                    <td class="px-3 py-4 whitespace-nowrap font-mono text-sm">${card.formattedNumber}</td>
+                    <td class="px-3 py-4 whitespace-nowrap">${card.expiry}</td>
+                    <td class="px-3 py-4 whitespace-nowrap font-mono text-sm">${card.cvv}</td>
+                    <td class="px-3 py-4 whitespace-nowrap">
+                        <button class="text-primary hover:text-secondary transition-colors copy-card" data-id="${card.id}">
+                            <i class="fa fa-copy"></i> 复制
+                        </button>
+                    </td>
+                `;
+                cardsTableBody.appendChild(tableRow);
+            });
+            
+            // 显示表格并展开
+            cardsList.classList.remove('hidden');
+            listExpanded = true;
+            updateListToggleButton();
+            
+            // 添加单卡复制功能
+            document.querySelectorAll('.copy-card').forEach(button => {
+                button.addEventListener('click', function() {
+                    const cardId = parseInt(this.getAttribute('data-id'));
+                    const card = generatedCards.find(c => c.id === cardId);
+                    
+                    if (card) {
+                        const cardText = `持卡人: ${card.cardholder}\n卡号: ${card.formattedNumber}\n有效期: ${card.expiry}\nCVV: ${card.cvv}`;
+                        navigator.clipboard.writeText(cardText).then(() => {
+                            showCopyNotification();
+                        });
+                    }
+                });
+            });
+        }
+        
+        // 切换列表显示/隐藏
+        toggleListBtn.addEventListener('click', function() {
+            const tableContainer = cardsList.querySelector('.overflow-x-auto');
+            if (listExpanded) {
+                tableContainer.style.maxHeight = '0';
+                tableContainer.style.overflow = 'hidden';
+                tableContainer.style.margin = '0';
+                tableContainer.style.padding = '0';
+                tableContainer.style.transition = 'max-height 0.3s ease-out';
+            } else {
+                tableContainer.style.maxHeight = '500px';
+                tableContainer.style.overflow = 'auto';
+                tableContainer.style.margin = '';
+                tableContainer.style.padding = '4px';
+            }
+            
+            listExpanded = !listExpanded;
+            updateListToggleButton();
+        });
+        
+        // 更新列表切换按钮文本
+        function updateListToggleButton() {
+            if (listExpanded) {
+                toggleListBtn.innerHTML = '<i class="fa fa-chevron-up mr-1"></i><span>收起列表</span>';
+            } else {
+                toggleListBtn.innerHTML = '<i class="fa fa-chevron-down mr-1"></i><span>展开列表</span>';
+            }
+        }
+        
+        // 显示复制成功通知
+        function showCopyNotification() {
+            copyNotification.classList.remove('translate-y-20', 'opacity-0');
+            copyNotification.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                copyNotification.classList.remove('translate-y-0', 'opacity-100');
+                copyNotification.classList.add('translate-y-20', 'opacity-0');
+            }, 2000);
+        }
+        
+        // 复制所有卡片信息
+        document.getElementById('copyAll').addEventListener('click', function() {
+            let allCardsText = '';
+            generatedCards.forEach((card, index) => {
+                allCardsText += `===== 虚拟信用卡 ${index + 1} =====\n`;
+                allCardsText += `持卡人: ${card.cardholder}\n`;
+                allCardsText += `卡号: ${card.formattedNumber}\n`;
+                allCardsText += `有效期: ${card.expiry}\n`;
+                allCardsText += `CVV: ${card.cvv}\n\n`;
+            });
+            
+            navigator.clipboard.writeText(allCardsText).then(() => {
+                showCopyNotification();
+            });
+        });
+        
+        // 导出功能
+        document.getElementById('exportCSV').addEventListener('click', function() {
+            exportCards('csv');
+        });
+        
+        document.getElementById('exportTXT').addEventListener('click', function() {
+            exportCards('txt');
+        });
+        
+        document.getElementById('exportPDF').addEventListener('click', function() {
+            alert('PDF导出功能即将上线，敬请期待！');
+        });
+        
+        function exportCards(format) {
+            let content = '';
+            
+            if (format === 'csv') {
+                // CSV格式
+                content = '序号,持卡人,卡号,有效期,CVV\n';
+                generatedCards.forEach((card, index) => {
+                    content += `${index + 1},"${card.cardholder}","${card.number}","${card.expiry}","${card.cvv}"\n`;
+                });
+                downloadFile(content, 'virtual-cards.csv', 'text/csv');
+            } else if (format === 'txt') {
+                // TXT格式
+                generatedCards.forEach((card, index) => {
+                    content += `===== 虚拟信用卡 ${index + 1} =====\n`;
+                    content += `持卡人: ${card.cardholder}\n`;
+                    content += `卡号: ${card.formattedNumber}\n`;
+                    content += `有效期: ${card.expiry}\n`;
+                    content += `CVV: ${card.cvv}\n\n`;
+                });
+                downloadFile(content, 'virtual-cards.txt', 'text/plain');
+            }
+        }
+        
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            // 清理
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
+        }
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+    
